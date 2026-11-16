@@ -1,0 +1,490 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101014">
+<title>Christmas Stream Studio</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#101014;
+  --panel:#191920;
+  --border:#30303b;
+  --purple:#a855f7;
+  --text:#f5f3fa;
+  --muted:#a4a1b0;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  padding:20px;
+  padding-bottom:50px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,sans-serif;
+}
+main {max-width:850px;margin:auto}
+header {padding:22px 0}
+h1 {font-size:27px;margin:0}
+header p,.muted {color:var(--muted)}
+.card {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:18px;
+  margin:15px 0;
+}
+h2 {font-size:17px;margin:0 0 15px}
+label {
+  display:block;
+  font-size:13px;
+  color:var(--muted);
+  margin:13px 0 7px;
+}
+input,select {
+  width:100%;
+  min-height:46px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:11px;
+  background:#111117;
+  color:white;
+  font:inherit;
+}
+button {
+  border:0;
+  border-radius:9px;
+  padding:13px 17px;
+  background:var(--purple);
+  color:white;
+  font-weight:650;
+  font-size:14px;
+  cursor:pointer;
+}
+button:disabled {opacity:.45;cursor:not-allowed}
+button.secondary {
+  background:#30303c;
+}
+button.danger {background:#8e303b}
+.actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:15px;
+}
+.preview {
+  width:100%;
+  aspect-ratio:16/9;
+  background:#09090d;
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+}
+.preview iframe {
+  width:100%;
+  height:100%;
+  border:0;
+}
+.status {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  color:var(--muted);
+  font-size:13px;
+}
+.dot {
+  width:9px;height:9px;border-radius:50%;
+  background:#777;
+}
+.dot.good {background:#22c55e}
+.dot.bad {background:#ef4444}
+.output {
+  background:#101016;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:12px;
+  overflow-wrap:anywhere;
+  font-size:13px;
+  margin-top:8px;
+}
+.hidden {display:none}
+.small {font-size:12px;color:var(--muted);line-height:1.6}
+footer {text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+</style>
+</head>
+
+<body>
+<main>
+
+<header>
+  <h1>🎄 Christmas Stream Studio</h1>
+  <p>Your browser-based YouTube broadcast control panel.</p>
+  <div class="status">
+    <span class="dot" id="connectionDot"></span>
+    <span id="connectionStatus">YouTube not connected</span>
+  </div>
+</header>
+
+<section class="card">
+  <h2>01 / Website source</h2>
+
+  <label for="website">Christmas countdown URL</label>
+  <input id="website" type="url"
+    placeholder="https://your-countdown-website.com">
+
+  <div class="actions">
+    <button onclick="previewWebsite()">Load preview</button>
+  </div>
+
+  <label>Website preview</label>
+  <div class="preview">
+    <iframe id="preview" title="Countdown preview"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+      referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  </div>
+
+  <p class="small">
+    Some websites block iframe previews. A failed preview does not
+    necessarily mean the website itself is unavailable.
+  </p>
+</section>
+
+<section class="card">
+  <h2>02 / YouTube connection</h2>
+
+  <label for="clientId">Google OAuth Client ID</label>
+  <input id="clientId" placeholder="Your Google OAuth Client ID">
+
+  <div class="actions">
+    <button onclick="connectYouTube()">Connect YouTube</button>
+    <button class="secondary" onclick="disconnectYouTube()">Disconnect</button>
+  </div>
+
+  <p class="small">
+    Your OAuth Client ID is not a password. Never put a client secret
+    or YouTube stream key into public GitHub code.
+  </p>
+</section>
+
+<section class="card">
+  <h2>03 / Broadcast settings</h2>
+
+  <label for="title">Broadcast title</label>
+  <input id="title" value="Christmas Countdown LIVE 🎄">
+
+  <label for="description">Description</label>
+  <input id="description"
+    value="Watch the Christmas countdown live!">
+
+  <label for="privacy">Visibility</label>
+  <select id="privacy">
+    <option value="unlisted">Unlisted</option>
+    <option value="public">Public</option>
+    <option value="private">Private</option>
+  </select>
+
+  <label for="resolution">Stream resolution</label>
+  <select id="resolution">
+    <option value="720p">720p</option>
+    <option value="1080p">1080p</option>
+  </select>
+
+  <div class="actions">
+    <button id="createButton" onclick="createBroadcast()" disabled>
+      Create YouTube broadcast
+    </button>
+  </div>
+
+  <p class="small">
+    This creates and connects a YouTube broadcast and video stream.
+    It does not transmit your webpage yet.
+  </p>
+</section>
+
+<section class="card hidden" id="streamResult">
+  <h2>04 / Streaming information</h2>
+
+  <div class="status">
+    <span class="dot good"></span>
+    Broadcast and stream created
+  </div>
+
+  <label>Broadcast URL</label>
+  <div class="output" id="broadcastUrl"></div>
+
+  <label>RTMP ingest address</label>
+  <div class="output" id="ingestAddress"></div>
+
+  <label>Stream key</label>
+  <div class="output" id="streamKey">Hidden</div>
+
+  <div class="actions">
+    <button class="secondary" onclick="toggleKey()">Show/hide key</button>
+    <button class="secondary" onclick="copyKey()">Copy key</button>
+  </div>
+
+  <p class="small">
+    Keep your stream key private. Anyone with it may be able to
+    broadcast to your YouTube channel.
+  </p>
+</section>
+
+<section class="card">
+  <h2>05 / Studio status</h2>
+  <div class="status">
+    <span class="dot" id="studioDot"></span>
+    <span id="studioStatus">Waiting for a broadcast</span>
+  </div>
+  <p class="small">
+    This panel manages YouTube broadcast resources. A separate
+    compatible encoder must send video to the RTMP address.
+    GitHub Pages cannot run that encoder continuously.
+  </p>
+</section>
+
+<footer>
+  Christmas Stream Studio · Hosted with GitHub Pages
+</footer>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let accessToken = null;
+let tokenClient = null;
+let currentStreamKey = "";
+let keyVisible = false;
+
+$("website").value = localStorage.getItem("countdownURL") || "";
+$("clientId").value = localStorage.getItem("googleClientId") || "";
+
+function setConnection(connected, message) {
+  $("connectionStatus").textContent = message;
+  $("connectionDot").className =
+    "dot " + (connected ? "good" : "");
+  $("createButton").disabled = !connected;
+}
+
+function setStudio(message, good=false) {
+  $("studioStatus").textContent = message;
+  $("studioDot").className = "dot " + (good ? "good" : "");
+}
+
+function previewWebsite() {
+  const url = $("website").value.trim();
+
+  try {
+    const parsed = new URL(url);
+
+    if (!["https:", "http:"].includes(parsed.protocol)) {
+      throw new Error("Invalid protocol");
+    }
+
+    $("preview").src = parsed.href;
+    localStorage.setItem("countdownURL", parsed.href);
+  } catch {
+    alert("Enter a valid website URL.");
+  }
+}
+
+function connectYouTube() {
+  const clientId = $("clientId").value.trim();
+
+  if (!clientId) {
+    alert("Enter your Google OAuth Client ID first.");
+    return;
+  }
+
+  if (!window.google?.accounts?.oauth2) {
+    alert("Google sign-in is still loading. Try again shortly.");
+    return;
+  }
+
+  localStorage.setItem("googleClientId", clientId);
+
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: clientId,
+    scope: "https://www.googleapis.com/auth/youtube",
+    callback: response => {
+      if (response.error) {
+        setConnection(false, "Authorization failed");
+        alert(response.error);
+        return;
+      }
+
+      accessToken = response.access_token;
+      setConnection(true, "YouTube connected");
+    }
+  });
+
+  tokenClient.requestAccessToken({prompt:"consent"});
+}
+
+function disconnectYouTube() {
+  if (accessToken && window.google?.accounts?.oauth2) {
+    google.accounts.oauth2.revoke(accessToken);
+  }
+
+  accessToken = null;
+  currentStreamKey = "";
+  $("streamResult").classList.add("hidden");
+  setConnection(false, "YouTube disconnected");
+  setStudio("Waiting for a broadcast");
+}
+
+async function apiRequest(endpoint, method="GET", body=null) {
+  if (!accessToken) throw new Error("Connect YouTube first.");
+
+  const options = {
+    method,
+    headers: {
+      Authorization: "Bearer " + accessToken,
+      "Content-Type": "application/json"
+    }
+  };
+
+  if (body) options.body = JSON.stringify(body);
+
+  const response = await fetch(
+    "https://www.googleapis.com/youtube/v3/" + endpoint,
+    options
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.error?.message || "YouTube API request failed."
+    );
+  }
+
+  return data;
+}
+
+async function createBroadcast() {
+  const button = $("createButton");
+  button.disabled = true;
+  button.textContent = "Creating...";
+
+  try {
+    const title = $("title").value.trim();
+    const description = $("description").value.trim();
+    const privacy = $("privacy").value;
+    const resolution = $("resolution").value;
+
+    if (!title) throw new Error("Enter a broadcast title.");
+
+    // Schedule the broadcast five minutes ahead.
+    const start = new Date(Date.now() + 5 * 60 * 1000);
+
+    // 1. Create YouTube broadcast.
+    const broadcast = await apiRequest(
+      "liveBroadcasts?part=snippet,status,contentDetails",
+      "POST",
+      {
+        snippet: {
+          title,
+          description,
+          scheduledStartTime: start.toISOString()
+        },
+        status: {
+          privacyStatus: privacy
+        },
+        contentDetails: {
+          enableAutoStart: true,
+          enableAutoStop: false,
+          recordFromStart: true,
+          enableDvr: true
+        }
+      }
+    );
+
+    // 2. Create the video stream.
+    const stream = await apiRequest(
+      "liveStreams?part=snippet,cdn,contentDetails",
+      "POST",
+      {
+        snippet: {
+          title: title + " Stream"
+        },
+        cdn: {
+          ingestionType: "rtmp",
+          resolution,
+          frameRate: "30fps"
+        },
+        contentDetails: {
+          isReusable: true
+        }
+      }
+    );
+
+    // 3. Bind the broadcast to the stream.
+    await apiRequest(
+      "liveBroadcasts/bind?part=id,snippet,contentDetails,status"
+      + "&id=" + encodeURIComponent(broadcast.id)
+      + "&streamId=" + encodeURIComponent(stream.id),
+      "POST"
+    );
+
+    currentStreamKey =
+      stream.cdn?.ingestionInfo?.streamName || "";
+
+    const address =
+      stream.cdn?.ingestionInfo?.ingestionAddress || "";
+
+    if (!currentStreamKey || !address) {
+      throw new Error("Stream created, but ingest information was missing.");
+    }
+
+    $("broadcastUrl").textContent =
+      "https://www.youtube.com/watch?v=" + broadcast.id;
+
+    $("ingestAddress").textContent = address;
+
+    keyVisible = false;
+    $("streamKey").textContent = "Hidden";
+
+    $("streamResult").classList.remove("hidden");
+
+    setStudio(
+      "Broadcast created. Waiting for an encoder.",
+      true
+    );
+
+  } catch (error) {
+    alert(error.message);
+    setStudio("Broadcast setup failed");
+  } finally {
+    button.disabled = !accessToken;
+    button.textContent = "Create YouTube broadcast";
+  }
+}
+
+function toggleKey() {
+  if (!currentStreamKey) return;
+
+  keyVisible = !keyVisible;
+
+  $("streamKey").textContent =
+    keyVisible ? currentStreamKey : "Hidden";
+}
+
+async function copyKey() {
+  if (!currentStreamKey) return;
+
+  try {
+    await navigator.clipboard.writeText(currentStreamKey);
+    alert("Stream key copied. Keep it private.");
+  } catch {
+    alert("Clipboard unavailable. Use the Show key option.");
+  }
+}
+</script>
+
+</body>
+</html>
