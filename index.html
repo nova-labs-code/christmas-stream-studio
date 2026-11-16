@@ -10,7 +10,7 @@
 
 <style>
 :root {
-  color-scheme: dark;
+  color-scheme:dark;
   --bg:#101014;
   --panel:#191920;
   --border:#30303b;
@@ -20,11 +20,8 @@
 }
 * {box-sizing:border-box}
 body {
-  margin:0;
-  padding:20px;
-  padding-bottom:50px;
-  background:var(--bg);
-  color:var(--text);
+  margin:0;padding:20px;padding-bottom:50px;
+  background:var(--bg);color:var(--text);
   font-family:system-ui,-apple-system,sans-serif;
 }
 main {max-width:850px;margin:auto}
@@ -32,84 +29,75 @@ header {padding:22px 0}
 h1 {font-size:27px;margin:0}
 header p,.muted {color:var(--muted)}
 .card {
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:15px;
-  padding:18px;
-  margin:15px 0;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:15px;padding:18px;margin:15px 0;
 }
 h2 {font-size:17px;margin:0 0 15px}
 label {
-  display:block;
-  font-size:13px;
-  color:var(--muted);
+  display:block;font-size:13px;color:var(--muted);
   margin:13px 0 7px;
 }
 input,select {
-  width:100%;
-  min-height:46px;
-  border:1px solid var(--border);
-  border-radius:9px;
-  padding:11px;
-  background:#111117;
-  color:white;
-  font:inherit;
+  width:100%;min-height:46px;border:1px solid var(--border);
+  border-radius:9px;padding:11px;background:#111117;
+  color:white;font:inherit;
 }
 button {
-  border:0;
-  border-radius:9px;
-  padding:13px 17px;
-  background:var(--purple);
-  color:white;
-  font-weight:650;
-  font-size:14px;
-  cursor:pointer;
+  border:0;border-radius:9px;padding:13px 17px;
+  background:var(--purple);color:white;
+  font-weight:650;font-size:14px;cursor:pointer;
 }
 button:disabled {opacity:.45;cursor:not-allowed}
-button.secondary {
-  background:#30303c;
-}
+button.secondary {background:#30303c}
 button.danger {background:#8e303b}
-.actions {
-  display:flex;
-  flex-wrap:wrap;
-  gap:9px;
-  margin-top:15px;
+.actions {display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.preview-wrap {
+  width:100%;display:flex;justify-content:center;
+  align-items:center;background:#09090d;
+  border:1px solid var(--border);border-radius:10px;
+  padding:14px;min-height:230px;overflow:hidden;
 }
 .preview {
-  width:100%;
-  aspect-ratio:16/9;
-  background:#09090d;
-  border:1px solid var(--border);
-  border-radius:10px;
-  overflow:hidden;
+  width:100%;aspect-ratio:16/9;
+  background:#09090d;border:1px solid var(--border);
+  border-radius:8px;overflow:hidden;
+  transition:width .2s ease,aspect-ratio .2s ease;
 }
-.preview iframe {
-  width:100%;
-  height:100%;
-  border:0;
+.preview.vertical {
+  width:min(100%,260px);aspect-ratio:9/16;
+}
+.preview iframe {width:100%;height:100%;border:0}
+.preview.both {
+  width:100%;aspect-ratio:16/9;
+}
+.preview-label {
+  text-align:center;font-size:12px;color:var(--muted);
+  margin-top:10px;
+}
+.both-preview {
+  display:flex;justify-content:center;align-items:center;
+  gap:14px;flex-wrap:wrap;width:100%;
+}
+.both-preview .preview {
+  flex:1 1 200px;max-width:100%;
+}
+.both-preview .preview.vertical {
+  flex:0 1 150px;
+}
+.both-preview .preview.landscape {
+  flex:1 1 300px;
 }
 .status {
-  display:flex;
-  align-items:center;
-  gap:9px;
-  color:var(--muted);
-  font-size:13px;
+  display:flex;align-items:center;gap:9px;
+  color:var(--muted);font-size:13px;
 }
-.dot {
-  width:9px;height:9px;border-radius:50%;
-  background:#777;
-}
+.dot {width:9px;height:9px;border-radius:50%;background:#777}
 .dot.good {background:#22c55e}
 .dot.bad {background:#ef4444}
 .output {
-  background:#101016;
-  border:1px solid var(--border);
-  border-radius:9px;
-  padding:12px;
-  overflow-wrap:anywhere;
-  font-size:13px;
-  margin-top:8px;
+  background:#101016;border:1px solid var(--border);
+  border-radius:9px;padding:12px;overflow-wrap:anywhere;
+  font-size:13px;margin-top:8px;
 }
 .hidden {display:none}
 .small {font-size:12px;color:var(--muted);line-height:1.6}
@@ -133,19 +121,21 @@ footer {text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
   <h2>01 / Website source</h2>
 
   <label for="website">Christmas countdown URL</label>
-  <input id="website" type="url"
-    placeholder="https://your-countdown-website.com">
+  <input id="website" type="url" placeholder="https://your-countdown-website.com">
 
   <div class="actions">
     <button onclick="previewWebsite()">Load preview</button>
   </div>
 
   <label>Website preview</label>
-  <div class="preview">
-    <iframe id="preview" title="Countdown preview"
-      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-      referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <div class="preview-wrap">
+    <div id="previewContainer" class="preview">
+      <iframe id="preview" title="Countdown preview"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+        referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
   </div>
+  <div class="preview-label" id="previewLabel">Landscape · 16:9</div>
 
   <p class="small">
     Some websites block iframe previews. A failed preview does not
@@ -177,8 +167,7 @@ footer {text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
   <input id="title" value="Christmas Countdown LIVE 🎄">
 
   <label for="description">Description</label>
-  <input id="description"
-    value="Watch the Christmas countdown live!">
+  <input id="description" value="Watch the Christmas countdown live!">
 
   <label for="privacy">Visibility</label>
   <select id="privacy">
@@ -187,11 +176,22 @@ footer {text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
     <option value="private">Private</option>
   </select>
 
+  <label for="orientation">Stream orientation</label>
+  <select id="orientation" onchange="updateOrientation()">
+    <option value="landscape">Landscape (16:9)</option>
+    <option value="vertical">Vertical (9:16)</option>
+    <option value="both">Both orientations</option>
+  </select>
+
   <label for="resolution">Stream resolution</label>
   <select id="resolution">
     <option value="720p">720p</option>
     <option value="1080p">1080p</option>
   </select>
+
+  <p class="small" id="orientationInfo">
+    Landscape uses a standard widescreen broadcast.
+  </p>
 
   <div class="actions">
     <button id="createButton" onclick="createBroadcast()" disabled>
@@ -200,8 +200,8 @@ footer {text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
   </div>
 
   <p class="small">
-    This creates and connects a YouTube broadcast and video stream.
-    It does not transmit your webpage yet.
+    Both prepares two separate broadcast configurations. This version
+    does not create simultaneous encoders or transmit video.
   </p>
 </section>
 
@@ -263,16 +263,39 @@ let keyVisible = false;
 $("website").value = localStorage.getItem("countdownURL") || "";
 $("clientId").value = localStorage.getItem("googleClientId") || "";
 
-function setConnection(connected, message) {
+function setConnection(connected,message) {
   $("connectionStatus").textContent = message;
-  $("connectionDot").className =
-    "dot " + (connected ? "good" : "");
+  $("connectionDot").className = "dot " + (connected ? "good" : "");
   $("createButton").disabled = !connected;
 }
 
-function setStudio(message, good=false) {
+function setStudio(message,good=false) {
   $("studioStatus").textContent = message;
   $("studioDot").className = "dot " + (good ? "good" : "");
+}
+
+function updateOrientation() {
+  const mode = $("orientation").value;
+  const container = $("previewContainer");
+  const label = $("previewLabel");
+  const info = $("orientationInfo");
+
+  container.className = "preview";
+
+  if (mode === "landscape") {
+    container.classList.add("landscape");
+    label.textContent = "Landscape · 16:9";
+    info.textContent = "Landscape uses a standard widescreen broadcast.";
+  } else if (mode === "vertical") {
+    container.classList.add("vertical");
+    label.textContent = "Vertical · 9:16";
+    info.textContent = "Vertical uses a portrait broadcast layout.";
+  } else {
+    container.classList.add("both");
+    label.textContent = "Both · Landscape and vertical configurations";
+    info.textContent =
+      "Both requires two separate YouTube broadcasts and two encoder outputs.";
+  }
 }
 
 function previewWebsite() {
@@ -280,13 +303,11 @@ function previewWebsite() {
 
   try {
     const parsed = new URL(url);
-
-    if (!["https:", "http:"].includes(parsed.protocol)) {
+    if (!["https:","http:"].includes(parsed.protocol)) {
       throw new Error("Invalid protocol");
     }
-
     $("preview").src = parsed.href;
-    localStorage.setItem("countdownURL", parsed.href);
+    localStorage.setItem("countdownURL",parsed.href);
   } catch {
     alert("Enter a valid website URL.");
   }
@@ -305,20 +326,20 @@ function connectYouTube() {
     return;
   }
 
-  localStorage.setItem("googleClientId", clientId);
+  localStorage.setItem("googleClientId",clientId);
 
   tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: clientId,
-    scope: "https://www.googleapis.com/auth/youtube",
-    callback: response => {
+    client_id:clientId,
+    scope:"https://www.googleapis.com/auth/youtube",
+    callback:response => {
       if (response.error) {
-        setConnection(false, "Authorization failed");
+        setConnection(false,"Authorization failed");
         alert(response.error);
         return;
       }
 
       accessToken = response.access_token;
-      setConnection(true, "YouTube connected");
+      setConnection(true,"YouTube connected");
     }
   });
 
@@ -333,18 +354,18 @@ function disconnectYouTube() {
   accessToken = null;
   currentStreamKey = "";
   $("streamResult").classList.add("hidden");
-  setConnection(false, "YouTube disconnected");
+  setConnection(false,"YouTube disconnected");
   setStudio("Waiting for a broadcast");
 }
 
-async function apiRequest(endpoint, method="GET", body=null) {
+async function apiRequest(endpoint,method="GET",body=null) {
   if (!accessToken) throw new Error("Connect YouTube first.");
 
   const options = {
     method,
-    headers: {
-      Authorization: "Bearer " + accessToken,
-      "Content-Type": "application/json"
+    headers:{
+      Authorization:"Bearer " + accessToken,
+      "Content-Type":"application/json"
     }
   };
 
@@ -358,12 +379,60 @@ async function apiRequest(endpoint, method="GET", body=null) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(
-      data.error?.message || "YouTube API request failed."
-    );
+    throw new Error(data.error?.message || "YouTube API request failed.");
   }
 
   return data;
+}
+
+async function createSingleBroadcast(title,description,privacy,resolution,suffix) {
+  const start = new Date(Date.now() + 5 * 60 * 1000);
+
+  const broadcast = await apiRequest(
+    "liveBroadcasts?part=snippet,status,contentDetails",
+    "POST",
+    {
+      snippet:{
+        title,
+        description,
+        scheduledStartTime:start.toISOString()
+      },
+      status:{privacyStatus:privacy},
+      contentDetails:{
+        enableAutoStart:true,
+        enableAutoStop:false,
+        recordFromStart:true,
+        enableDvr:true
+      }
+    }
+  );
+
+  const stream = await apiRequest(
+    "liveStreams?part=snippet,cdn,contentDetails",
+    "POST",
+    {
+      snippet:{title:title + " " + suffix + " Stream"},
+      cdn:{
+        ingestionType:"rtmp",
+        resolution,
+        frameRate:"30fps"
+      },
+      contentDetails:{isReusable:false}
+    }
+  );
+
+  await apiRequest(
+    "liveBroadcasts/bind?part=id,snippet,contentDetails,status"
+    + "&id=" + encodeURIComponent(broadcast.id)
+    + "&streamId=" + encodeURIComponent(stream.id),
+    "POST"
+  );
+
+  return {
+    broadcastUrl:"https://www.youtube.com/watch?v=" + broadcast.id,
+    address:stream.cdn?.ingestionInfo?.ingestionAddress || "",
+    key:stream.cdn?.ingestionInfo?.streamName || ""
+  };
 }
 
 async function createBroadcast() {
@@ -376,85 +445,70 @@ async function createBroadcast() {
     const description = $("description").value.trim();
     const privacy = $("privacy").value;
     const resolution = $("resolution").value;
+    const orientation = $("orientation").value;
 
     if (!title) throw new Error("Enter a broadcast title.");
 
-    // Schedule the broadcast five minutes ahead.
-    const start = new Date(Date.now() + 5 * 60 * 1000);
+    const results = [];
 
-    // 1. Create YouTube broadcast.
-    const broadcast = await apiRequest(
-      "liveBroadcasts?part=snippet,status,contentDetails",
-      "POST",
-      {
-        snippet: {
-          title,
-          description,
-          scheduledStartTime: start.toISOString()
-        },
-        status: {
-          privacyStatus: privacy
-        },
-        contentDetails: {
-          enableAutoStart: true,
-          enableAutoStop: false,
-          recordFromStart: true,
-          enableDvr: true
-        }
-      }
-    );
+    if (orientation === "both") {
+      const landscape = await createSingleBroadcast(
+        title + " (Landscape)",
+        description,
+        privacy,
+        resolution,
+        "Landscape"
+      );
 
-    // 2. Create the video stream.
-    const stream = await apiRequest(
-      "liveStreams?part=snippet,cdn,contentDetails",
-      "POST",
-      {
-        snippet: {
-          title: title + " Stream"
-        },
-        cdn: {
-          ingestionType: "rtmp",
-          resolution,
-          frameRate: "30fps"
-        },
-        contentDetails: {
-          isReusable: true
-        }
-      }
-    );
+      results.push({name:"Landscape · 16:9",...landscape});
 
-    // 3. Bind the broadcast to the stream.
-    await apiRequest(
-      "liveBroadcasts/bind?part=id,snippet,contentDetails,status"
-      + "&id=" + encodeURIComponent(broadcast.id)
-      + "&streamId=" + encodeURIComponent(stream.id),
-      "POST"
-    );
+      const vertical = await createSingleBroadcast(
+        title + " (Vertical)",
+        description,
+        privacy,
+        resolution,
+        "Vertical"
+      );
 
-    currentStreamKey =
-      stream.cdn?.ingestionInfo?.streamName || "";
+      results.push({name:"Vertical · 9:16",...vertical});
+    } else {
+      const result = await createSingleBroadcast(
+        title,
+        description,
+        privacy,
+        resolution,
+        orientation === "vertical" ? "Vertical" : "Landscape"
+      );
 
-    const address =
-      stream.cdn?.ingestionInfo?.ingestionAddress || "";
-
-    if (!currentStreamKey || !address) {
-      throw new Error("Stream created, but ingest information was missing.");
+      results.push({
+        name:orientation === "vertical" ? "Vertical · 9:16" : "Landscape · 16:9",
+        ...result
+      });
     }
 
-    $("broadcastUrl").textContent =
-      "https://www.youtube.com/watch?v=" + broadcast.id;
-
-    $("ingestAddress").textContent = address;
-
+    currentStreamKey = results[0].key;
     keyVisible = false;
+
+    $("broadcastUrl").textContent = results
+      .map(r => r.name + "\n" + r.broadcastUrl).join("\n\n");
+
+    $("ingestAddress").textContent = results
+      .map(r => r.name + "\n" + r.address).join("\n\n");
+
     $("streamKey").textContent = "Hidden";
 
     $("streamResult").classList.remove("hidden");
 
     setStudio(
-      "Broadcast created. Waiting for an encoder.",
+      results.length === 2
+        ? "Two broadcasts created. Each needs its own encoder output."
+        : "Broadcast created. Waiting for an encoder.",
       true
     );
+
+    if (results.length === 2) {
+      alert("Both broadcasts were created. The key display currently holds the first stream's key only.");
+    }
 
   } catch (error) {
     alert(error.message);
@@ -467,11 +521,8 @@ async function createBroadcast() {
 
 function toggleKey() {
   if (!currentStreamKey) return;
-
   keyVisible = !keyVisible;
-
-  $("streamKey").textContent =
-    keyVisible ? currentStreamKey : "Hidden";
+  $("streamKey").textContent = keyVisible ? currentStreamKey : "Hidden";
 }
 
 async function copyKey() {
@@ -484,6 +535,8 @@ async function copyKey() {
     alert("Clipboard unavailable. Use the Show key option.");
   }
 }
+
+updateOrientation();
 </script>
 
 </body>
